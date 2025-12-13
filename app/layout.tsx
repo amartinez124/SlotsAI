@@ -29,7 +29,7 @@ export default function RootLayout({
           src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js"
           strategy="beforeInteractive"
         />
-        <link rel="apple-touch-icon" href="/logo.webp" />
+        <link rel="apple-touch-icon" href="/icon-192x192.webp" />
       </head>
       <body className="antialiased">{children}</body>
     </html>
