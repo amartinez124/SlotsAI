@@ -15,8 +15,10 @@ export default withPWA({
   cacheOnFrontEndNav: true,
   aggressiveFrontEndNavCaching: true,
   reloadOnOnline: true,
-  disable: process.env.NODE_ENV === "development",
+  disable: false, // Enable PWA in all environments
+  register: true,
   workboxOptions: {
     disableDevLogs: true,
+    skipWaiting: true,
   },
 })(nextConfig);

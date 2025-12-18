@@ -11,6 +11,10 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Chukchansi AI",
   },
+  icons: {
+    icon: "/app-icon-192.webp",
+    apple: "/app-icon-192.webp",
+  },
 };
 
 export const viewport: Viewport = {
@@ -29,7 +33,7 @@ export default function RootLayout({
           src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js"
           strategy="beforeInteractive"
         />
-        <link rel="apple-touch-icon" href="/logo.webp" />
+        <link rel="apple-touch-icon" href="/app-icon-192.webp" />
       </head>
       <body className="antialiased">{children}</body>
     </html>
