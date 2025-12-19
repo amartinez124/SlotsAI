@@ -43,9 +43,9 @@ export const COMPOSER_TOOLS = [
   },
   {
     id: "voice_input",
-    label: "Voice input",
+    label: "Voice",
     shortLabel: "Voice",
-    placeholderOverride: "Press the microphone button below to start speaking...",
+    placeholderOverride: "Start speaking...",
     icon: "phone" as const,
     pinned: true,
   },

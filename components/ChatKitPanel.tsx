@@ -369,6 +369,55 @@ export function ChatKitPanel({
     },
   });
 
+  // Monitor for voice tool button clicks and activation
+  useEffect(() => {
+    if (!isBrowser || !isSpeechSupported) return;
+
+    let observer: MutationObserver | null = null;
+    let timeoutId: NodeJS.Timeout;
+
+    const setupVoiceButtonMonitoring = () => {
+      const chatkitElement = document.querySelector('openai-chatkit');
+      if (!chatkitElement?.shadowRoot) {
+        // Retry after a short delay if ChatKit isn't ready
+        timeoutId = setTimeout(setupVoiceButtonMonitoring, 500);
+        return;
+      }
+
+      // Monitor for changes in the composer area
+      observer = new MutationObserver(() => {
+        const voiceButton = chatkitElement.shadowRoot?.querySelector('[data-tool-id="voice_input"]');
+        if (!voiceButton) return;
+
+        const isActive = voiceButton.getAttribute('aria-pressed') === 'true' ||
+                        voiceButton.getAttribute('data-selected') === 'true' ||
+                        voiceButton.classList.contains('selected') ||
+                        voiceButton.classList.contains('active');
+        
+        if (isActive && !isListening) {
+          if (isDev) console.log('[Voice] Starting speech recognition');
+          toggleListening();
+        } else if (!isActive && isListening) {
+          if (isDev) console.log('[Voice] Stopping speech recognition');
+          toggleListening();
+        }
+      });
+
+      observer.observe(chatkitElement.shadowRoot, {
+        attributes: true,
+        subtree: true,
+        attributeFilter: ['aria-pressed', 'data-selected', 'class']
+      });
+    };
+
+    setupVoiceButtonMonitoring();
+    
+    return () => {
+      observer?.disconnect();
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [isBrowser, isSpeechSupported, isListening, toggleListening, isDev]);
+
   // Handle stopping recording and putting text in composer
   useEffect(() => {
     if (!isListening && accumulatedTranscript && chatkit.setComposerValue) {
