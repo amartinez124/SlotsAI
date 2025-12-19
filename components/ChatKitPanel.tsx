@@ -87,9 +87,21 @@ export function ChatKitPanel({
         // Accumulate final transcripts
         setAccumulatedTranscript((prev) => (prev ? prev + " " + text : text));
         setInterimTranscript("");
+        
+        // Update composer with accumulated text in real-time
+        if (chatkit.setComposerValue) {
+          const fullText = accumulatedTranscript ? accumulatedTranscript + " " + text : text;
+          chatkit.setComposerValue({ text: fullText.trim() });
+        }
       } else {
-        // Show interim transcript
+        // Show interim transcript and update composer
         setInterimTranscript(text);
+        
+        // Update composer with interim text in real-time
+        if (chatkit.setComposerValue) {
+          const fullText = accumulatedTranscript ? accumulatedTranscript + " " + text : text;
+          chatkit.setComposerValue({ text: fullText.trim() });
+        }
       }
     },
     onError: (error) => {
@@ -369,12 +381,9 @@ export function ChatKitPanel({
     },
   });
 
-  // Handle stopping recording and putting text in composer
+  // Handle stopping recording
   useEffect(() => {
-    if (!isListening && accumulatedTranscript && chatkit.setComposerValue) {
-      // Put the accumulated transcript in the composer input for editing
-      chatkit.setComposerValue({ text: accumulatedTranscript.trim() });
-      
+    if (!isListening && accumulatedTranscript) {
       // Focus the composer so user can immediately edit or send
       if (chatkit.focusComposer) {
         chatkit.focusComposer();
@@ -413,7 +422,7 @@ export function ChatKitPanel({
       
       {/* Microphone Button - Next to send button */}
       {isSpeechSupported && !blockingError && !isInitializingSession && (
-        <div className="absolute bottom-6 right-16 z-10">
+        <div className="absolute bottom-5.5 right-16 z-10">
           <button
             onClick={toggleListening}
             className="flex items-center justify-center w-10 h-10 rounded-xl transition-all group hover:bg-white/10 dark:hover:bg-white/10"
