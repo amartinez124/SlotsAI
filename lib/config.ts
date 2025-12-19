@@ -41,6 +41,14 @@ export const COMPOSER_TOOLS = [
     icon: "book-open" as const,
     pinned: false,
   },
+  {
+    id: "voice_input",
+    label: "Voice input",
+    shortLabel: "Voice",
+    placeholderOverride: "Press the microphone button below to start speaking...",
+    icon: "phone" as const,
+    pinned: true,
+  },
 ];
 
 export const SPEECH_RECOGNITION_LANGUAGE = 'en-US';

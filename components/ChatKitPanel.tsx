@@ -411,15 +411,28 @@ export function ChatKitPanel({
         }
       />
       
-      {/* Microphone Button - Positioned to not block attachments */}
-      {isSpeechSupported && !blockingError && !isInitializingSession && (
-        <div className="absolute bottom-6 right-6 z-10">
-          <MicrophoneButton
-            isListening={isListening}
-            isSupported={isSpeechSupported}
-            onClick={toggleListening}
-            interimTranscript={interimTranscript}
-          />
+      {/* Voice Recording Indicator - Shows when listening */}
+      {isListening && (
+        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg z-20 max-w-md">
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+            <div className="flex-1">
+              <div className="text-sm font-medium">
+                {interimTranscript || "Listening... Speak now"}
+              </div>
+              {accumulatedTranscript && (
+                <div className="text-xs opacity-80 mt-1">
+                  {accumulatedTranscript}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={toggleListening}
+              className="px-3 py-1 bg-white text-red-500 rounded hover:bg-gray-100 transition-colors text-sm font-medium"
+            >
+              Stop
+            </button>
+          </div>
         </div>
       )}
       
