@@ -56,11 +56,19 @@ export function useSpeechRecognition({
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('Speech recognition error:', event.error);
+      // Only log non-critical errors
+      if (event.error !== 'no-speech' && event.error !== 'aborted') {
+        console.error('Speech recognition error:', event.error);
+      }
+      
       setIsListening(false);
       
+      // Don't show error messages for no-speech or aborted (user stopped)
+      if (event.error === 'no-speech' || event.error === 'aborted') {
+        return;
+      }
+      
       const errorMessages: Record<string, string> = {
-        'no-speech': 'No speech detected. Please try again.',
         'audio-capture': 'No microphone found. Please check your device.',
         'not-allowed': 'Microphone permission denied.',
         'network': 'Network error occurred.',

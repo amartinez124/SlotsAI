@@ -369,55 +369,6 @@ export function ChatKitPanel({
     },
   });
 
-  // Monitor for voice tool button clicks and activation
-  useEffect(() => {
-    if (!isBrowser || !isSpeechSupported) return;
-
-    let observer: MutationObserver | null = null;
-    let timeoutId: NodeJS.Timeout;
-
-    const setupVoiceButtonMonitoring = () => {
-      const chatkitElement = document.querySelector('openai-chatkit');
-      if (!chatkitElement?.shadowRoot) {
-        // Retry after a short delay if ChatKit isn't ready
-        timeoutId = setTimeout(setupVoiceButtonMonitoring, 500);
-        return;
-      }
-
-      // Monitor for changes in the composer area
-      observer = new MutationObserver(() => {
-        const voiceButton = chatkitElement.shadowRoot?.querySelector('[data-tool-id="voice_input"]');
-        if (!voiceButton) return;
-
-        const isActive = voiceButton.getAttribute('aria-pressed') === 'true' ||
-                        voiceButton.getAttribute('data-selected') === 'true' ||
-                        voiceButton.classList.contains('selected') ||
-                        voiceButton.classList.contains('active');
-        
-        if (isActive && !isListening) {
-          if (isDev) console.log('[Voice] Starting speech recognition');
-          toggleListening();
-        } else if (!isActive && isListening) {
-          if (isDev) console.log('[Voice] Stopping speech recognition');
-          toggleListening();
-        }
-      });
-
-      observer.observe(chatkitElement.shadowRoot, {
-        attributes: true,
-        subtree: true,
-        attributeFilter: ['aria-pressed', 'data-selected', 'class']
-      });
-    };
-
-    setupVoiceButtonMonitoring();
-    
-    return () => {
-      observer?.disconnect();
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [isBrowser, isSpeechSupported, isListening, toggleListening, isDev]);
-
   // Handle stopping recording and putting text in composer
   useEffect(() => {
     if (!isListening && accumulatedTranscript && chatkit.setComposerValue) {
@@ -460,28 +411,31 @@ export function ChatKitPanel({
         }
       />
       
-      {/* Voice Recording Indicator - Shows when listening */}
-      {isListening && (
-        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg z-20 max-w-md">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-            <div className="flex-1">
-              <div className="text-sm font-medium">
-                {interimTranscript || "Listening... Speak now"}
-              </div>
-              {accumulatedTranscript && (
-                <div className="text-xs opacity-80 mt-1">
-                  {accumulatedTranscript}
-                </div>
-              )}
-            </div>
-            <button
-              onClick={toggleListening}
-              className="px-3 py-1 bg-white text-red-500 rounded hover:bg-gray-100 transition-colors text-sm font-medium"
+      {/* Microphone Button - Next to send button */}
+      {isSpeechSupported && !blockingError && !isInitializingSession && (
+        <div className="absolute bottom-6 right-16 z-10">
+          <button
+            onClick={toggleListening}
+            className="flex items-center justify-center w-10 h-10 rounded-xl transition-all group hover:bg-white/10 dark:hover:bg-white/10"
+            title={isListening ? "Stop recording" : "Start voice input"}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className={`w-5 h-5 transition-colors ${isListening ? 'text-red-500 animate-pulse' : ''}`}
+              style={!isListening ? { color: '#afafaf' } : undefined}
             >
-              Stop
-            </button>
-          </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
+                className={!isListening ? 'group-hover:[stroke:#dcdcdc]' : ''}
+              />
+            </svg>
+          </button>
         </div>
       )}
       
